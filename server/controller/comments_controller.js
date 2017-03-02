@@ -12,6 +12,16 @@ exports.register = function(server, options, next){
 			}
 		});
 	};
+	//通过商品id找到追评
+	var get_again_comments = function(product_id, cb){
+		server.plugins['models'].product_comments.find_again_comments(product_id,function(rows){
+			if (rows.length > 0) {
+				cb(false,rows);
+			}else {
+				cb(true,"商品信息不存在！");
+			}
+		});
+	};
 	//通过人id找到人信息
 	var get_persons_infos = function(person_ids, cb){
 		server.plugins['models'].persons.find_persons(person_ids,function(rows){
@@ -40,6 +50,21 @@ exports.register = function(server, options, next){
 			handler: function(request, reply){
 				var product_id = request.query.product_id;
 				get_comments_infos(product_id, function(err, rows){
+					if (!err) {
+						return reply({"success":true,"message":"ok","rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows,"service_info":service_info});
+					}
+				});
+			}
+		},
+		//展示一个商品的追评
+		{
+			method: 'GET',
+			path: '/again_comments',
+			handler: function(request, reply){
+				var product_id = request.query.product_id;
+				get_again_comments(product_id, function(err, rows){
 					if (!err) {
 						return reply({"success":true,"message":"ok","rows":rows,"service_info":service_info});
 					}else {
